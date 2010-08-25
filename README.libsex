@@ -1,0 +1,338 @@
+This is the SExtractor package (http://www.astromatic.net/) packed into a library mainly for poloka purposes.
+The wrapping around SExtractor in poloka is quite ugly, so inspiration from it in the poloka code should be kept to a minimum.
+Many changes were applied on the upstream SExtractor package, but it was quite a while ago and have not been so far updated to a more recent version.
+If you are *really* interested in packaging SExtractor into a library, feel free to copy around the autotools file to a more recent SExtractor version, but I do not recommend to copy blindly the code difference, since some of them were specifically applied for poloka.
+
+Last version taken from upstream was: 2.4.4.
+
+What we do on SExtractor:
+* Simplify configure.ac and use libtool
+* Change the Makefile.am to allow libtoolization
+* Add a pkg-config file sex.pc.in
+* Remove src/poly.* (duplicate symbols from wcs/poly.*)
+* Many more c code changes. The history is quite long, so we provide the patch to the various bits of code below. You can use this file as a patch.
+
+S.F. Aug. 2010
+
+--- src/analyse.c.orig	2005-09-27 08:45:56.000000000 -0700
++++ src/analyse.c	2010-08-13 13:10:28.191507000 -0700
+@@ -42,6 +42,8 @@
+ 
+ static obj2struct	*obj2 = &outobj2;
+ 
++static void flag_satur(objstruct *obj, pliststruct *pixel); /* toads */
++
+ /********************************* analyse ***********************************/
+ void  analyse(picstruct *field, picstruct *dfield, int objnb,
+ 		objliststruct *objlist)
+@@ -60,6 +62,8 @@
+ 
+   examineiso(field, dfield, obj, objlist->plist);
+ 
++  flag_satur(obj, objlist->plist); /* toads */
++
+ 
+ /*&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&*/
+ /* Put here your calls to custom functions related to isophotal measurements.
+@@ -75,6 +79,22 @@
+   return;
+   }
+ 
++/******** call a user routine to collect pixels of saturated objects */
++/* toads */
++
++static void flag_satur(objstruct *obj, pliststruct *pixel)
++{
++  int x,y;
++  pliststruct		*pixt;
++  if (!prefs.user_ana2 || (obj->peak+obj->bkg < prefs.satur_level)) return;
++  for (pixt=pixel+obj->firstpix; pixt>=pixel; pixt=pixel+PLIST(pixt,nextpix))
++    {
++      x = PLIST(pixt,x);
++      y = PLIST(pixt,y);
++      prefs.user_ana2(x,y);
++    }
++}
++
+ 
+ /***************************** examineiso ********************************/
+ /*
+@@ -668,6 +688,10 @@
+       }
+     }
+ 
++
++ if (prefs.user_ana) prefs.user_ana(obj, obj2); /* pour TOADS */
++
++
+ /* Remove again from the image the object's pixels if BLANKing is on ... */
+ /*-- ... and free memory */
+ 
+--- src/back.c.orig	2003-11-26 14:53:02.000000000 -0800
++++ src/back.c	2010-08-13 13:10:28.228470000 -0700
+@@ -121,9 +121,9 @@
+ 
+   for (j=0; j<ny; j++)
+     {
+-    if (lflag && j)
++    /* if (lflag && j)
+       NPRINTF(OUTPUT, "\33[1M> Setting up background map at line:%5d\n\33[1A",
+-	      j*bh);
++      j*bh); */ /*toads */
+     if (!nlines)
+       {
+ /*---- The image is small enough so that we can make exhaustive stats */
+@@ -256,7 +256,7 @@
+         {
+         k = m+nx*j;
+         backguess(wbm, wfield->back+k, wfield->sigma+k);
+-        free(wbm->histo);
++	free(wbm->histo);
+         }
+       }
+     }
+@@ -916,6 +916,10 @@
+    double	dx,dy, cdx;
+    float	*b, b0,b1,b2,b3;
+ 
++   if (field->back_type == BACK_ABSOLUTE )//TOADS Delphine 19/11/02
++       return((PIXTYPE)field->backmean);// Pour coherence
++
++
+   b = field->back;
+   nx = field->nbackx;
+   ny = field->nbacky;
+--- src/check.c.orig	2004-12-15 05:45:27.000000000 -0800
++++ src/check.c	2010-08-13 13:10:28.240460000 -0700
+@@ -283,6 +283,10 @@
+     case CHECK_MINIBACKGROUND:
+     case CHECK_MINIBACKRMS:
+       ival = -32;
++      fitsadd(check->fitshead,"SEXBKGSX", "BACKGROUND MESH WIDTH (PIXELS)");/*TOADS*/
++      fitswrite(check->fitshead, "SEXBKGSX", &field->backw, H_INT, T_LONG);/*TOADS*/
++      fitsadd(check->fitshead,"SEXBKGSY", "BACKGROUND MESH HEIGHT (PIXELS)");/*TOADS*/
++      fitswrite(check->fitshead, "SEXBKGSY", &field->backh, H_INT, T_LONG);/*TOADS*/
+       fitswrite(check->fitshead, "BITPIX  ", &ival, H_INT, T_LONG);
+       check->width = field->nbackx;
+       fitswrite(check->fitshead, "NAXIS1  ", &check->width, H_INT, T_LONG);
+--- src/fits/fitscat.c.orig	2004-12-15 11:23:54.000000000 -0800
++++ src/fits/fitscat.c	2010-08-13 13:10:28.097605000 -0700
+@@ -366,7 +366,7 @@
+ 
+   QCALLOC(cat, catstruct, ncat);
+ 
+-  cat->access_type = WRITE_ONLY;
++  cat->Access_type = WRITE_ONLY;
+ 
+   return cat;
+   }
+@@ -386,7 +386,7 @@
+ 
+   {
+ 
+-  if  (cat->access_type == READ_ONLY && at == WRITE_ONLY)
++  if  (cat->Access_type == READ_ONLY && at == WRITE_ONLY)
+     error(EXIT_FAILURE, "*Internal Error*: Trying to write to the "
+ 	"READ_ONLY catalog ", cat->filename);
+ 
+@@ -394,7 +394,7 @@
+     {
+     if ((cat->file = fopen(cat->filename, at==WRITE_ONLY?"wb":"rb")) == NULL)
+       return RETURN_ERROR;
+-    cat->access_type = at;
++    cat->Access_type = at;
+     }
+ 
+   return RETURN_OK;
+--- src/fits/fitscat.h.orig	2004-12-15 11:23:54.000000000 -0800
++++ src/fits/fitscat.h	2010-08-13 13:10:28.108594000 -0700
+@@ -126,7 +126,7 @@
+   FILE		*file;			/* pointer to the file structure */
+   struct structtab *tab;		/* pointer to the first table */
+   int		ntab;			/* number of tables included */
+-  access_type	access_type;		/* READ_ONLY or WRITE_ONLY */
++  access_type	Access_type;		/* READ_ONLY or WRITE_ONLY */
+   }		catstruct;
+ 
+ /*-------------------------------- table  ----------------------------------*/
+--- src/fits/fitsmisc.c.orig	2004-12-15 11:23:54.000000000 -0800
++++ src/fits/fitsmisc.c	2010-08-13 13:10:28.128574000 -0700
+@@ -60,10 +60,19 @@
+ /*
+ Swap bytes for doubles, longs and shorts (for DEC machines or PC for inst.).
+ */
+-void    swapbytes(void *ptr, int nb, int n)
++
++/* modified for TOADS because the generated code
++   for statements like:
++   cp[0] ^= (cp[3]^=(cp[0]^=cp[3]));
++   is wrong with gcc 4.{1,2} for some common 
++   optimization level */
++#define Swap(a,b) {tmp=a;a=b;b=tmp; }
++
++void	swapbytes(void *ptr, int nb, int n)
+   {
+-   char *cp;
+-   int  j;
++   char	*cp;
++   int	j;
++   char tmp;
+ 
+   cp = (char *)ptr;
+ 
+@@ -71,8 +80,12 @@
+     {
+     for (j=n; j--; cp+=4)
+       {
+-      cp[0] ^= (cp[3]^=(cp[0]^=cp[3]));
+-      cp[1] ^= (cp[2]^=(cp[1]^=cp[2]));
++	Swap(cp[0],cp[3]);
++	Swap(cp[1],cp[2]);
++	/*      
++	cp[0] ^= (cp[3]^=(cp[0]^=cp[3]));
++	cp[1] ^= (cp[2]^=(cp[1]^=cp[2]));
++	*/
+       }
+     return;
+     }
+@@ -80,7 +93,10 @@
+   if (nb&2)
+     {
+     for (j=n; j--; cp+=2)
+-      cp[0] ^= (cp[1]^=(cp[0]^=cp[1]));
++      Swap(cp[0], cp[1]);
++      /* 
++      cp[0] ^= (cp[1]^=(cp[0]^=cp[1])); 
++      */
+     return;
+     }
+ 
+@@ -91,10 +107,16 @@
+     {
+     for (j=n; j--; cp+=8)
+       {
++	Swap(cp[0],cp[7]);
++	Swap(cp[1],cp[6]);
++	Swap(cp[2],cp[5]);
++	Swap(cp[3],cp[4]);
++	/*
+       cp[0] ^= (cp[7]^=(cp[0]^=cp[7]));
+       cp[1] ^= (cp[6]^=(cp[1]^=cp[6]));
+       cp[2] ^= (cp[5]^=(cp[2]^=cp[5]));
+       cp[3] ^= (cp[4]^=(cp[3]^=cp[4]));
++	*/
+       }
+     return;
+     }
+--- src/prefs.h.orig	2005-07-18 10:09:13.000000000 -0700
++++ src/prefs.h	2010-08-13 13:10:28.425273000 -0700
+@@ -25,6 +25,8 @@
+ One must have:	MAXLIST >= 1 (preferably >= 16!)
+ */
+ /*------------------------------- preferences -------------------------------*/
++typedef enum {THRESH_RELATIVE, THRESH_ABSOLUTE} ThresholdType; /*toads */
++typedef   enum	{FLAG_OR, FLAG_AND, FLAG_MIN, FLAG_MAX, FLAG_MOST} FlagType; /* toads*/
+ typedef struct
+   {
+   char		prefs_name[MAXCHAR];			/* prefs filename*/
+@@ -36,8 +38,7 @@
+   int		ndthresh;				/* (1 or 2 entries) */
+   double	thresh[2];				/* analysis thresh. */
+   int		nthresh;				/* (1 or 2 entries) */
+-  enum	{THRESH_RELATIVE, THRESH_ABSOLUTE}
+-					thresh_type[2];	/* bkgnd type */
++      ThresholdType thresh_type[2];	/* bkgnd type */ /* toads */
+   int		nthresh_type;				/* nb of params */
+ /*----- extraction */
+   int		dimage_flag;				/* detect. image ? */
+@@ -54,8 +55,7 @@
+ /*----- Flagging */
+   char		*(fimage_name[MAXFLAG]);		/* flagmap filenames */
+   int		nfimage_name;				/* nb of params */
+-  enum	{FLAG_OR, FLAG_AND, FLAG_MIN, FLAG_MAX, FLAG_MOST}
+-				flag_type[MAXFLAG];	/* flag combination */
++  FlagType 	flag_type[MAXFLAG];	/* flag combination */ /*toads*/
+   int		imaflag_size;				/* requested iso nb1 */
+   int		imanflag_size;				/* requested iso nb2 */
+   int		nimaisoflag;				/* effective iso nb */
+@@ -189,6 +189,8 @@
+   double	mama_corflex;
+   int		fitsunsigned_flag;			/* Force unsign FITS */
+   int		next;			     /* Number of extensions in file */
++  void      (*user_ana) (objstruct *, obj2struct *);    /* TOADS */
++  void      (*user_ana2) (float x, float y);    /* TOADS */
+   }	prefstruct;
+ 
+   prefstruct		prefs;
+--- src/scan.c.orig	2003-11-28 07:14:13.000000000 -0800
++++ src/scan.c	2010-08-13 13:10:28.446253000 -0700
+@@ -525,10 +525,10 @@
+         }
+       }
+ 
+-    if (!((yl+1)%16))
++    /* if (!((yl+1)%16))
+       NPRINTF(OUTPUT, "\33[1M> Line:%5d  "
+ 		"Objects: %8d detected / %8d sextracted\n\33[1A",
+-	yl+1, thecat.ndetect, thecat.ntotal);
++		yl+1, thecat.ndetect, thecat.ntotal); */ /* toads */
+ /*--------------------- End of the loop over the y's -----------------------*/
+     }
+ 
+@@ -806,6 +806,9 @@
+ 
+   if (analyse_type & ANALYSE_FULL)
+     {
++    double mxtrunc = 0;  /* toads */
++    double mytrunc = 0;  /* toads */
++    double tv2 = 0; /* toads */
+     mx = my = tv = 0.0;
+     mx2 = my2 = mxy = 0.0;
+     thresh2 = (thresh + peak)/2.0;
+@@ -819,7 +822,12 @@
+       if (val>thresh)
+         dnpix++;
+       if (val > thresh2)
++	  {
+         area2++;
++        mxtrunc += cval * x; /* toads */
++        mytrunc += cval * y; /* toads */
++        tv2     += cval;/* toads */
++      }
+       mx += cval * x;
+       my += cval * y;
+       mx2 += cval * x*x;
+@@ -876,6 +884,8 @@
+     obj->dflux = tv;
+     obj->mx = xm+xmin;	/* add back xmin */
+     obj->my = ym+ymin;	/* add back ymin */
++    obj->mxtrunc = mxtrunc + xmin + 1.0;  /* toads + standard fits shift */
++    obj->mytrunc = mytrunc + ymin + 1.0;  /* toads + standard fits shift */
+     obj->mx2 = xm2;
+     obj->my2 = ym2;
+     obj->mxy = xym;
+--- src/types.h.orig	2005-08-25 12:06:13.000000000 -0700
++++ src/types.h	2010-08-13 13:10:28.505195000 -0700
+@@ -1,4 +1,7 @@
+- /*
++#ifndef TYPES__H
++#define TYPES__H
++/* TOADS: ajouter les 2 lignes au dessus */
++/*
+  				types.h
+ 
+ *%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@@ -84,6 +87,7 @@
+ /* ---- astrometric data */
+   int		peakx,peaky;			/* pos of brightest pix */
+   double       	mx, my;				/* barycenter */
++  double        mxtrunc,mytrunc;                /* barycenter in [peak/2,peak] toads */
+   double	poserr_mx2, poserr_my2,
+ 		poserr_mxy;			/* Error ellips moments */
+ /* ---- morphological data */			
+@@ -404,3 +408,5 @@
+   int		next;					/* Nb of extensions */
+   }		sexcatstruct;
+ 
++#endif /* TYPES__H */
++/* TOADS : ajouter la ligne au dessus */
