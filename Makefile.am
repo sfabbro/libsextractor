@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS	= foreign no-dependencies
-SUBDIRS			= src
+SUBDIRS			= src man
 EXTRA_DIST		= config doc AUTHORS BUGS ChangeLog COPYING HISTORY \
 			  INSTALL README THANKS README.libsex
 

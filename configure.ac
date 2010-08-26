@@ -1,4 +1,4 @@
-AC_INIT(libsex, 2.4.4, [E.Bertin and Poloka Team])
+AC_INIT(libsex, 2.4.4.1, [E.Bertin and Poloka Team])
 AC_CONFIG_SRCDIR(src/makeit.c)
 AC_CONFIG_AUX_DIR(autoconf)
 AM_CONFIG_HEADER(config.h)
@@ -15,6 +15,9 @@ AM_PROG_CC_STDC
 # C Compiler: Check that it is POSIX-compliant
 AC_ISC_POSIX
 AC_DISABLE_STATIC
+# those 2 define avoid checks of c++ and fortran during AC_PROG_LIBTOOL
+define([AC_LIBTOOL_LANG_CXX_CONFIG], [:])
+define([AC_LIBTOOL_LANG_F77_CONFIG], [:])
 AC_PROG_LIBTOOL
 
 # Checks for libraries.
@@ -44,5 +47,5 @@ AC_CHECK_FUNCS([atexit memcpy memmove memset mkdir munmap strstr])
 AC_SYS_LARGEFILE
 AC_FUNC_FSEEKO
 
-AC_CONFIG_FILES([Makefile src/Makefile src/fits/Makefile src/wcs/Makefile sex.pc])
+AC_CONFIG_FILES([Makefile man/Makefile src/Makefile src/fits/Makefile src/wcs/Makefile sex.pc man/sex.1])
 AC_OUTPUT

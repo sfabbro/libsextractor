@@ -5,7 +5,7 @@ If you are *really* interested in packaging SExtractor into a library, feel free
 
 Last version taken from upstream was: 2.4.4.
 
-What we do on SExtractor:
+This is what we apply on SExtractor:
 * Simplify configure.ac and use libtool
 * Change the Makefile.am to allow libtoolization
 * Add a pkg-config file sex.pc.in
