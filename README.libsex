@@ -1,7 +1,14 @@
-This is the SExtractor package (http://www.astromatic.net/) packed into a library mainly for poloka purposes.
-The wrapping around SExtractor in poloka is quite ugly, so inspiration from it in the poloka code should be kept to a minimum.
-Many changes were applied on the upstream SExtractor package, but it was quite a while ago and have not been so far updated to a more recent version.
-If you are *really* interested in packaging SExtractor into a library, feel free to copy around the autotools file to a more recent SExtractor version, but I do not recommend to copy blindly the code difference, since some of them were specifically applied for poloka.
+5AThis is the SExtractor package (http://www.astromatic.net/) packed
+into a library mainly for poloka purposes.
+The wrapping around SExtractor in poloka is quite ugly, so inspiration
+from it in the poloka code should be kept to a minimum.
+Many changes were applied on the upstream SExtractor package, but it
+was quite a while ago and have not been so far updated to a more
+recent version.
+If you are *really* interested in packaging SExtractor into a library,
+feel free to copy around the autotools file to a more recent
+SExtractor version, but I do not recommend to copy blindly the code
+difference, since some of them were specifically applied for poloka.
 
 Last version taken from upstream was: 2.4.4.
 
@@ -10,7 +17,9 @@ This is what we apply on SExtractor:
 * Change the Makefile.am to allow libtoolization
 * Add a pkg-config file sex.pc.in
 * Remove src/poly.* (duplicate symbols from wcs/poly.*)
-* Many more c code changes. The history is quite long, so we provide the patch to the various bits of code below. You can use this file as a patch.
+* Many more c code changes. The history is quite long, so we provide
+  the patch to the various bits of code below. You can use this file as
+  a patch.
 
 S.F. Aug. 2010
 

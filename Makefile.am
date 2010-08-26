@@ -13,6 +13,5 @@ MAINTAINERCLEANFILES = \
 	Makefile.in \
 	config.h \
 	config.h.in \
-	autoconf/* \
-	autoconf \
+	autoconf* \
 	autom4te.cache*
