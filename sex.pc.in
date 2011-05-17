@@ -8,4 +8,4 @@ Description: SExtractor repacked Library
 Version: @PACKAGE_VERSION@
 Libs: -L${libdir} -lsex
 Libs.private: @LIBS@
-Cflags: -I${includedir}
+Cflags: -I${includedir}/sex

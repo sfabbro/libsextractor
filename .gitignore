@@ -20,3 +20,4 @@ libtool
 /configure
 /src/sexmain
 /man/sex.1
+/autoconf

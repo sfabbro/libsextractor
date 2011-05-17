@@ -1,4 +1,4 @@
-AC_INIT(libsex, 2.4.4.1, [E.Bertin and Poloka Team])
+AC_INIT(libsex, 2.4.4.2, [E.Bertin and Poloka Team])
 AC_CONFIG_SRCDIR(src/makeit.c)
 AC_CONFIG_AUX_DIR(autoconf)
 AM_CONFIG_HEADER(config.h)
