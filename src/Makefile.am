@@ -19,9 +19,6 @@ libsex_la_SOURCES = \
 	photom.c plist.c prefs.c psf.c readimage.c \
 	refine.c retina.c scan.c som.c weight.c winpos.c
 
-# forced -O1 for now, since it seems buggy with above.
-# might be a gcc bug, to check with later versions of gcc and SExtractor
-libsex_la_CFLAGS = -O1
 libsex_la_CPPFLAGS = -I$(top_srcdir)/src/wcs
 libsex_la_LIBADD = \
 	$(top_builddir)/src/fits/libsexfits.la \

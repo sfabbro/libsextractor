@@ -1,4 +1,4 @@
-AC_INIT(libsex, 2.4.4.2, [E.Bertin and Poloka Team])
+AC_INIT(libsex, 2.4.4.3, [E.Bertin and Poloka Team])
 AC_CONFIG_SRCDIR(src/makeit.c)
 AC_CONFIG_AUX_DIR(autoconf)
 AM_CONFIG_HEADER(config.h)
@@ -46,6 +46,19 @@ AC_CHECK_FUNCS([atexit memcpy memmove memset mkdir munmap strstr])
 # Check support for large files
 AC_SYS_LARGEFILE
 AC_FUNC_FSEEKO
+
+# cflags forced -O1 for now, since it seems buggy with sextractor 2.4.4
+# might be a gcc bug, to check with later versions of gcc and SExtractor
+# replace any -Ox by -O1
+new_cflags=""
+for flag in $CFLAGS; do
+    case $flag in
+        -O0) flag=-O0 ;;
+	-O*) flag=-O1 ;;	
+    esac	
+    new_cflags="$new_cflags $flag"
+done
+CFLAGS="$new_cflags"
 
 AC_CONFIG_FILES([Makefile man/Makefile src/Makefile src/fits/Makefile src/wcs/Makefile sex.pc man/sex.1])
 AC_OUTPUT
