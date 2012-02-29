@@ -1,10 +1,10 @@
 AUTOMAKE_OPTIONS	= foreign no-dependencies
 SUBDIRS			= src man
 EXTRA_DIST		= config doc AUTHORS BUGS ChangeLog COPYING HISTORY \
-			  INSTALL README THANKS README.libsex
+			  INSTALL README THANKS README.libsextractor
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = sex.pc
+pkgconfig_DATA = sextractor.pc
 
 CLEANFILES = *~
 MAINTAINERCLEANFILES = \

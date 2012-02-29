@@ -19,5 +19,5 @@ libtool
 /config.status
 /configure
 /src/sexmain
-/man/sex.1
+/man/sexmain.1
 /autoconf
