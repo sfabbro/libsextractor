@@ -1,10 +1,12 @@
-5AThis is the SExtractor package (http://www.astromatic.net/) packed
-into a library mainly for poloka purposes.
+This is the SExtractor package (http://www.astromatic.net/) packed
+into a library mainly for compatibility with the poloka software.
 The wrapping around SExtractor in poloka is quite ugly, so inspiration
 from it in the poloka code should be kept to a minimum.
+
 Many changes were applied on the upstream SExtractor package, but it
 was quite a while ago and have not been so far updated to a more
 recent version.
+
 If you are *really* interested in packaging SExtractor into a library,
 feel free to copy around the autotools file to a more recent
 SExtractor version, but I do not recommend to copy blindly the code

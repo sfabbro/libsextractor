@@ -4,8 +4,8 @@ libdir=@libdir@
 includedir=@includedir@
 
 Name: @PACKAGE_NAME@
-Description: SExtractor repacked Library
+Description: SExtractor as a library
 Version: @PACKAGE_VERSION@
-Libs: -L${libdir} -lsex
+Libs: -L${libdir} -lsextractor
 Libs.private: @LIBS@
-Cflags: -I${includedir}/sex
+Cflags: -I${includedir}/sextractor

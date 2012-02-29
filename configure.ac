@@ -1,4 +1,4 @@
-AC_INIT(libsex, 2.4.4.3, [E.Bertin and Poloka Team])
+AC_INIT(libsextractor, 2.4.4.3, [E.Bertin and Poloka Team])
 AC_CONFIG_SRCDIR(src/makeit.c)
 AC_CONFIG_AUX_DIR(autoconf)
 AM_CONFIG_HEADER(config.h)
@@ -60,5 +60,5 @@ for flag in $CFLAGS; do
 done
 CFLAGS="$new_cflags"
 
-AC_CONFIG_FILES([Makefile man/Makefile src/Makefile src/fits/Makefile src/wcs/Makefile sex.pc man/sex.1])
+AC_CONFIG_FILES([Makefile man/Makefile src/Makefile src/fits/Makefile src/wcs/Makefile sextractor.pc man/sexmain.1])
 AC_OUTPUT

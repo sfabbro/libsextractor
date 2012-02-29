@@ -1,18 +1,18 @@
 .TH SEXTRACTOR "1" "@DATE3@" "SWarp @PACKAGE_VERSION@" "User Commands"
 .SH NAME
-sex \- extract a source catalog from an astronomical FITS image
+sexmain \- extract a source catalog from an astronomical FITS image
 .SH SYNOPSIS
-.B sex \fIimage\fR [\fI-c configuration-file\fR]
+.B sexmain \fIimage\fR [\fI-c configuration-file\fR]
 .RS
 [\fI-parameter1 value1 -parameter2 value2 ...\fR]
 .RE
 .TP
-.B sex \fIimage\_detect\fR \fIimage_measure\fR [\fI-c configuration-file\fR]
+.B sexmain \fIimage\_detect\fR \fIimage_measure\fR [\fI-c configuration-file\fR]
 .RS
 [\fI-parameter1 value1 -parameter2 value2 ...\fR]
 .RE
 .TP
-.B sex \fI-d\fR
+.B sexmain \fI-d\fR
 .SH DESCRIPTION
 SExtractor is a program that builds a catalogue of objects from an astronomical
 image. Although it is particularly oriented towards reduction of large scale
