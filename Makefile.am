@@ -1,7 +1,8 @@
 AUTOMAKE_OPTIONS	= foreign no-dependencies
 SUBDIRS			= src man
 EXTRA_DIST		= config doc AUTHORS BUGS ChangeLog COPYING HISTORY \
-			  INSTALL README THANKS README.libsextractor
+			  INSTALL README THANKS \
+			  sextractor-$(PACKAGE_VERSION)-poloka.patch
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = sextractor.pc
