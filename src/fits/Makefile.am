@@ -1,6 +1,6 @@
 sexfits_HEADERS = \
 	fitscat_defs.h fitscat.h
-sexfitsdir = $(includedir)/sex/fits
+sexfitsdir = $(includedir)/sextractor/fits
 
 noinst_LTLIBRARIES = libsexfits.la
 libsexfits_la_SOURCES = \

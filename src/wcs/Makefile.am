@@ -1,4 +1,4 @@
-sexwcsdir = $(includedir)/sex/wcs
+sexwcsdir = $(includedir)/sextractor/wcs
 sexwcs_HEADERS = \
 	cel.h lin.h poly.h proj.h sph.h tnx.h wcs.h \
 	wcsmath.h wcstrig.h
