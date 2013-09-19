@@ -1,4 +1,4 @@
-AC_INIT(libsextractor, 2.4.4.3, [E.Bertin and Poloka Team])
+AC_INIT([libsextractor],[2.4.4.3],[E.Bertin and Poloka Team])
 AC_CONFIG_SRCDIR(src/makeit.c)
 AC_CONFIG_AUX_DIR(autoconf)
 AM_CONFIG_HEADER(config.h)
@@ -13,12 +13,12 @@ AC_PROG_CC
 # C Compiler: Check that it is ANSI C
 AM_PROG_CC_STDC
 # C Compiler: Check that it is POSIX-compliant
-AC_ISC_POSIX
-AC_DISABLE_STATIC
+AC_SEARCH_LIBS([strerror],[cposix])
+
 # those 2 define avoid checks of c++ and fortran during AC_PROG_LIBTOOL
 define([AC_LIBTOOL_LANG_CXX_CONFIG], [:])
 define([AC_LIBTOOL_LANG_F77_CONFIG], [:])
-AC_PROG_LIBTOOL
+LT_INIT([disable-static])
 
 # Checks for libraries.
 AC_CHECK_LIB(m, sin)
@@ -38,7 +38,18 @@ AC_TYPE_UID_T
 AC_FUNC_ERROR_AT_LINE
 AC_FUNC_MALLOC
 AC_FUNC_MMAP
-AC_TYPE_SIGNAL
+AC_DIAGNOSE([obsolete],[your code may safely assume C89 semantics that RETSIGTYPE is void.
+Remove this warning and the `AC_CACHE_CHECK' when you adjust the code.])dnl
+AC_CACHE_CHECK([return type of signal handlers],[ac_cv_type_signal],[AC_COMPILE_IFELSE(
+[AC_LANG_PROGRAM([#include <sys/types.h>
+#include <signal.h>
+],
+		 [return *(signal (0, 0)) (0) == 1;])],
+		   [ac_cv_type_signal=int],
+		   [ac_cv_type_signal=void])])
+AC_DEFINE_UNQUOTED([RETSIGTYPE],[$ac_cv_type_signal],[Define as the return type of signal handlers
+		    (`int' or `void').])
+
 AC_FUNC_STAT
 AC_FUNC_STRFTIME
 AC_CHECK_FUNCS([atexit memcpy memmove memset mkdir munmap strstr])
